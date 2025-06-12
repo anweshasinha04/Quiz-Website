@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attractive Quiz App with Name Input</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-position: 0 0, 25px 25px;
+      background-size: 50px 50px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 600px;
+      padding: 3rem 2.5rem 3.5rem;
+      text-align: center;
+      animation: fadeIn 0.6s ease forwards;
+      position: relative;
+    }
+
+    #quiz-container, #result-container {
+      display: none;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .question {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1.8rem;
+      min-height: 70px;
+      line-height: 1.3;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .answers button {
+      background-color: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 15px;
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.2s ease;
+      user-select: none;
+    }
+
+    .answers button:hover:not(:disabled) {
+      background-color: #667eea;
+      color: white;
+      border-color: #556cd6;
+      transform: scale(1.05);
+      box-shadow: 0 8px 15px rgba(102,126,234,0.5);
+    }
+
+    .answers button:disabled {
+      cursor: default;
+      opacity: 0.7;
+    }
+
+    .answers button.correct {
+      background-color: #4caf50;
+      border-color: #3a9d37;
+      color: white;
+      box-shadow: 0 8px 15px rgba(76,175,80,0.6);
+    }
+
+    .answers button.wrong {
+      background-color: #f44336;
+      border-color: #c62828;
+      color: white;
+      box-shadow: 0 8px 15px rgba(244,67,54,0.6);
+    }
+
+    #result {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 20px;
+      min-height: 28px;
+    }
+
+    #restart {
+      margin-top: 30px;
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 8px 20px rgba(118,75,162,0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      display: none;
+      user-select: none;
+    }
+
+    #restart:hover {
+      background-color: #5a3c91;
+      box-shadow: 0 10px 25px rgba(90,60,145,0.8);
+    }
+
+    /* Name input styles */
+    #name-container {
+      display: block;
+    }
+    #name-form input {
+      padding: 14px 20px;
+      font-size: 1.2rem;
+      border-radius: 20px;
+      border: 2px solid #ddd;
+      width: 70%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+      outline: none;
+    }
+
+    #name-form input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.7);
+    }
+
+    #start-btn {
+      padding: 14px 30px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 8px 20px rgba(102,126,234,0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    #start-btn:hover {
+      background-color: #5a3c91;
+      box-shadow: 0 10px 25px rgba(90,60,145,0.8);
+    }
+
+    #greeting {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #444;
+      min-height: 40px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #confetti {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Name input screen -->
+    <div id="name-container" role="dialog" aria-modal="true" aria-labelledby="name-title">
+      <h2 id="name-title">Welcome! What's your name?</h2>
+      <form id="name-form" aria-label="Enter your name to start quiz">
+        <input
+          type="text"
+          id="name-input"
+          name="name"
+          placeholder="Enter your name"
+          required
+          autocomplete="off"
+          aria-required="true"
+          autofocus
+        />
+        <br />
+        <button type="submit" id="start-btn" aria-label="Start Quiz">Start Quiz</button>
+      </form>
+    </div>
+
+    <!-- Quiz container -->
+    <div id="quiz-container" role="main" aria-live="polite">
+      <div id="greeting" aria-live="polite"></div>
+      <div class="progress-bar" aria-label="Quiz progress">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+
+      <div class="question" id="question">Question text</div>
+
+      <div class="answers" id="answers" role="list">
+        <!-- Answers will be inserted here -->
+      </div>
+
+      <div id="result" aria-live="assertive"></div>
+
+      <button id="restart" aria-label="Restart Quiz">Restart Quiz</button>
+    </div>
+  </div>
+
+  <div id="confetti"></div>
+
+  <script>
+    const quizData = [
+      {
+        question: "What is the capital of France?",
+        answers: ["Berlin", "Madrid", "Paris", "Rome"],
+        correct: 2
+      },
+      {
+        question: "Which language runs in a web browser?",
+        answers: ["Java", "C", "Python", "JavaScript"],
+        correct: 3
+      },
+      {
+        question: "What does CSS stand for?",
+        answers: [
+          "Central Style Sheets",
+          "Cascading Style Sheets",
+          "Cascading Simple Sheets",
+          "Cars SUVs Sailboats"
+        ],
+        correct: 1
+      },
+      {
+        question: "What year was JavaScript launched?",
+        answers: ["1996", "1995", "1994", "none of the above"],
+        correct: 1
+      }
+    ];
+
+    const nameContainer = document.getElementById("name-container");
+    const nameForm = document.getElementById("name-form");
+    const nameInput = document.getElementById("name-input");
+    const quizContainer = document.getElementById("quiz-container");
+    const greeting = document.getElementById("greeting");
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const resultEl = document.getElementById("result");
+    const restartBtn = document.getElementById("restart");
+    const progressBarFill = document.getElementById("progress-bar-fill");
+    const confettiContainer = document.getElementById("confetti");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userName = "";
+
+    nameForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const enteredName = nameInput.value.trim();
+      if (enteredName.length === 0) {
+        alert("Please enter your name to start the quiz!");
+        return;
+      }
+      userName = enteredName;
+      nameContainer.style.display = "none";
+      quizContainer.style.display = "block";
+      greeting.textContent = `Hey ${userName}, let's start the quiz!`;
+      loadQuestion();
+    });
+
+    function loadQuestion() {
+      const current = quizData[currentQuestionIndex];
+      questionEl.textContent = current.question;
+      answersEl.innerHTML = "";
+      resultEl.textContent = "";
+      restartBtn.style.display = "none";
+
+      current.answers.forEach((answer, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = answer;
+        btn.setAttribute("role", "listitem");
+        btn.disabled = false;
+        btn.className = "";
+        btn.addEventListener("click", () => selectAnswer(index, btn));
+        answersEl.appendChild(btn);
+      });
+
+      updateProgressBar();
+    }
+
+    function selectAnswer(selectedIndex, btn) {
+      const current = quizData[currentQuestionIndex];
+      // Disable all buttons
+      Array.from(answersEl.children).forEach(button => {
+        button.disabled = true;
+        // Add correct/wrong classes for coloring
+        if (quizData[currentQuestionIndex].correct === [...answersEl.children].indexOf(button)) {
+          button.classList.add("correct");
+        } else {
+          button.classList.add("wrong");
+        }
+      });
+
+      if (selectedIndex === current.correct) {
+        score++;
+        resultEl.textContent = "Correct! 🎉";
+        resultEl.style.color = "#4caf50";
+      } else {
+        resultEl.textContent = `Wrong! The correct answer is: "${current.answers[current.correct]}"`;
+        resultEl.style.color = "#f44336";
+      }
+
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < quizData.length) {
+        setTimeout(loadQuestion, 1800);
+      } else {
+        setTimeout(showFinalScore, 1800);
+      }
+    }
+
+    function updateProgressBar() {
+      const percent = (currentQuestionIndex / quizData.length) * 100;
+      progressBarFill.style.width = percent + "%";
+    }
+
+    function showFinalScore() {
+      questionEl.textContent = `Quiz Completed! ${userName}, your score: ${score} / ${quizData.length}`;
+      answersEl.innerHTML = "";
+      resultEl.textContent = "";
+      progressBarFill.style.width = "100%";
+      restartBtn.style.display = "inline-block";
+      launchConfetti();
+    }
+
+    restartBtn.addEventListener("click", () => {
+      currentQuestionIndex = 0;
+      score = 0;
+      progressBarFill.style.width = "0%";
+      restartBtn.style.display = "none";
+      clearConfetti();
+      greeting.textContent = `Hey ${userName}, let's start the quiz!`;
+      loadQuestion();
+    });
+
+    function launchConfetti() {
+      const confettiCount = 100;
+      const confettiColors = ['#FFC107', '#8BC34A', '#00BCD4', '#FF5722', '#E91E63'];
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.pointerEvents = 'none';
+      confettiContainer.appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+
+      const confettiPieces = [];
+
+      for(let i = 0; i < confettiCount; i++) {
+        confettiPieces.push({
+          x: Math.random() * width,
+          y: Math.random() * height - height,
+          size: (Math.random() * 7) + 5,
+          speed: (Math.random() * 3) + 2,
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() * 10) + 5,
+        });
+      }
+
+      let animationFrameId;
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        confettiPieces.forEach(p => {
+          ctx.save();
+          ctx.fillStyle = p.color;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation * Math.PI / 180);
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.4);
+          ctx.restore();
+
+          p.y += p.speed;
+          p.rotation += p.rotationSpeed;
+          if (p.y > height) {
+            p.y = -10;
+            p.x = Math.random() * width;
+          }
+        });
+        animationFrameId = requestAnimationFrame(draw);
+      }
+
+      draw();
+
+      setTimeout(() => {
+        cancelAnimationFrame(animationFrameId);
+        confettiContainer.removeChild(canvas);
+      }, 5000);
+    }
+
+    function clearConfetti() {
+      confettiContainer.innerHTML = "";
+    }
+  </script>
+
+</body>
+</html>
